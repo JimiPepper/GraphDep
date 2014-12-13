@@ -1,28 +1,21 @@
 package fr.inria.lille.graphdep
 
+import fr.inria.lille.graphdep.svg.{RGB, ColorSystem}
+
 /**
- * Created by Jiraya on 13/12/2014.
+ * @author : Romain Philippon
  */
 sealed abstract class SVGElement
-case class SVGCircle(x: Int, y : Int) extends SVGElement
-case class SVGRectangle(width: Int, height: Int, x: Int, y : Int) extends SVGElement
-case class SVGLine(x1 : Int, y1 : Int, x2 : Int, y2 : Int) extends SVGElement
-case class SVGText(content: String, x : Int, y : Int) extends SVGElement
+case class SVGCircle(x: Int, y : Int, fillColor : ColorSystem = RGB(255, 255, 255), stroke : SVGStroke = new SVGStroke) extends SVGElement
+case class SVGRectangle(width: Int, height: Int, x: Int, y : Int, fillColor : ColorSystem = RGB(255, 255, 255), stroke : SVGStroke = new SVGStroke) extends SVGElement
+case class SVGLine(x1 : Int, y1 : Int, x2 : Int, y2 : Int, stroke : SVGStroke = new SVGStroke) extends SVGElement
+case class SVGText(content: String, x : Int, y : Int, color : ColorSystem = RGB(255, 255, 255), font : FontSVG = new FontSVG) extends SVGElement
+case class SVGTitle(title : String)
 
-sealed abstract class ColorSystem
-case class RGB(red : Int, green : Int, blue : Int) extends ColorSystem {
-  if(red < 0  || red > 255) {
-    throw new IllegalArgumentException("RGB values must be between 0 and 255 (red : "+ red +")")
-  }
+sealed abstract class SVGAttribute
+case class SVGStroke(color : ColorSystem = RGB(255, 255, 255), width : Int = 1, opacity : Double = 1.0) extends SVGAttribute
+case class FontSVG(size: String = "0px", weight: String = "normal")
 
-  if(green < 0  || green > 255) {
-    throw new IllegalArgumentException("RGB values must be between 0 and 255 (green : "+ green +")")
-  }
-
-  if(blue < 0  || blue > 255) {
-    throw new IllegalArgumentException("RGB values must be between 0 and 255 (blue : "+ blue +")")
-  }
-}
 
 package object svg extends SVGElementAppender {
   override def circle(x : Int, y : Int) : SVGCircle = {
