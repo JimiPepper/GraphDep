@@ -17,8 +17,8 @@ case class RGB(red : Int, green : Int, blue : Int) extends ColorSystem {
   if(blue < 0  || blue > 255) {
     throw new IllegalArgumentException("RGB values must be between 0 and 255 (blue : "+ blue +")")
   }
-}
 
-object ColorSystem {
-
+  override def toString : String = {
+    "rgb("+ red +", "+ green +", "+ blue +")"
+  }
 }
