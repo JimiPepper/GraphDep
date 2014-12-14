@@ -7,23 +7,23 @@ import fr.inria.lille.graphdep.svg._
  */
 sealed abstract class SVGElement
 
-case class SVGCircle(x: Int, y : Int, fillColor : ColorSystem = RGB(255, 255, 255), stroke : SVGStroke = new SVGStroke) extends SVGElement with SVGColor with SVGStroking {
+case class SVGCircle(x: Int, y : Int, radius : Int, fillColor : ColorSystem = RGB(255, 255, 255), stroke : SVGStroke = new SVGStroke) extends SVGElement with SVGColor with SVGStroking {
   override def fillColor(color: ColorSystem): SVGElement = {
     color match {
-      case RGB(red, green, blue) => SVGCircle(this.x, this.y, color, this.stroke)
+      case RGB(red, green, blue) => SVGCircle(this.x, this.y, this.radius, color, this.stroke)
     }
   }
 
   override def strokeWidth(width: Int): SVGElement = {
-    SVGCircle(this.x, this.y, this.fillColor, SVGStroke(this.stroke.color, width, this.stroke.opacity))
+    SVGCircle(this.x, this.y, this.radius, this.fillColor, SVGStroke(this.stroke.color, width, this.stroke.opacity))
   }
 
   override def strokeOpacity(opacity: Double): SVGElement = {
-    SVGCircle(this.x, this.y, this.fillColor, SVGStroke(this.stroke.color, this.stroke.width, opacity))
+    SVGCircle(this.x, this.y, this.radius, this.fillColor, SVGStroke(this.stroke.color, this.stroke.width, opacity))
   }
 
   override def strokeColor(color: ColorSystem): SVGElement = {
-    SVGCircle(this.x, this.y, this.fillColor, SVGStroke(color, this.stroke.width, this.stroke.opacity))
+    SVGCircle(this.x, this.y, this.radius, this.fillColor, SVGStroke(color, this.stroke.width, this.stroke.opacity))
   }
 }
 
@@ -84,8 +84,8 @@ case class SVGFont(size: String = "0px", weight: String = "normal")
 
 
 package object svg extends SVGElementAppender {
-  override def circle(x : Int, y : Int) : SVGCircle = {
-    SVGCircle(x, y)
+  override def circle(x : Int, y : Int, radius : Int) : SVGCircle = {
+    SVGCircle(x, y, radius)
   }
 
   override def rec(width: Int, height: Int, x : Int, y : Int) : SVGRectangle = {
