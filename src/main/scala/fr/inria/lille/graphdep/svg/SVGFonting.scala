@@ -5,6 +5,7 @@ import fr.inria.lille.graphdep.SVGElement
 /**
  * Created by Jiraya on 13/12/2014.
  */
-trait SVGColor {
-  def fillColor(color : ColorSystem) : SVGElement
+trait SVGFonting {
+  def size(size : String) : SVGElement
+  def weight(weight : String) : SVGElement
 }
