@@ -30,8 +30,6 @@ object Main extends App {
   lazy val xmlFile = XML.loadFile(args(0))
   lazy val commits = xmlFile \\ "analysis" \\ "history" \\ "commit"
 
-  println(commits size)
-
   val SVGDoc = commits map { commit =>
     currentCommitDate = getDate((commit \\ "date").head.text.split("-").map(_.toInt))
 

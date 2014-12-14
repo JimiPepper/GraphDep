@@ -125,8 +125,6 @@ package object svg extends SVGElementAppender {
         }
       }</svg>
 
-    println(System.getProperty("user.home"))
-
     XML.save(System.getProperty("user.home") + File.separator + "depgraph.svg", xmlSVG, "UTF-8", true, doctype)
   }
 }
