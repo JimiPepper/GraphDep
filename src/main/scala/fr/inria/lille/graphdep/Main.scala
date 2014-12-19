@@ -64,16 +64,23 @@ object Main extends App {
   val chronoLine = line(10, middleOrdinate, widthSVG - 10, middleOrdinate)
   currentX = startX
   lastCommitDate = parseInformation.head._1
-  var addDepLine, delDepLine, commitDateCirc : SVGElement = null
+  var addDepLine, delDepLine, commitDateCirc, nbAddDeptext, nbDelDeptext : SVGElement = null
 
-  parseInformation foreach { case (date : Date, nbAddedDependency : Int, nbDeletedDependencies : Int) =>
+  parseInformation foreach { case (date : Date, nbAddedDependency : Int, nbDeletedDependency : Int) =>
     /* CREATE SVG ELEMENTS */
-    if(nbAddedDependency == 0 && nbDeletedDependencies == 0) // if no dependency changes detected
+    if(nbAddedDependency == 0 && nbDeletedDependency == 0) // if no dependency changes detected
       commitDateCirc = circle(currentX, middleOrdinate, 5).fillColor(RGB(255, 255, 255))
     else {
+      nbAddDeptext = text("+"+ nbAddedDependency, currentX, middleOrdinate - nbAddedDependency * unitGraph - 5).fillColor(newDependencyColor)
+      nbDelDeptext = text("-"+ nbDeletedDependency, currentX, middleOrdinate + nbDeletedDependency * unitGraph + 12 + 5).fillColor(deleteDependencyColor)
+
       commitDateCirc = circle(currentX, middleOrdinate, 5)
       addDepLine = line(currentX, middleOrdinate, currentX, middleOrdinate - nbAddedDependency * unitGraph).strokeColor(newDependencyColor)
-      delDepLine = line(currentX, middleOrdinate, currentX, middleOrdinate + nbDeletedDependencies * unitGraph).strokeColor(deleteDependencyColor)
+      delDepLine = line(currentX, middleOrdinate, currentX, middleOrdinate + nbDeletedDependency * unitGraph).strokeColor(deleteDependencyColor)
+
+      // TODO : Make an object for each svg export data
+      svgElements = svgElements.:+(nbAddDeptext)
+      svgElements = svgElements.:+(nbDelDeptext)
     }
 
     /* APPENDS SVG ELEMENTS */
