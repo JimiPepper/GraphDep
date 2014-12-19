@@ -85,7 +85,7 @@ case class SVGTitle(title : String)
 
 sealed abstract class SVGAttribute
 case class SVGStroke(color : ColorSystem = RGB(0, 0, 0), width : Int = 1, opacity : Double = 1.0) extends SVGAttribute
-case class SVGFont(size: String = "0px", weight: String = "normal")
+case class SVGFont(size: String = "12px", weight: String = "normal")
 
 
 package object svg extends SVGElementAppender {
@@ -121,6 +121,7 @@ package object svg extends SVGElementAppender {
           shape match {
             case SVGCircle(x, y, radius, fillColor, stroke) => <circle cx={x toString} cy={y toString} r={radius toString} stroke={stroke.color.toString} stroke-width={stroke.width.toString} fill={fillColor toString} />
             case SVGLine(x1, y1, x2, y2, stroke) => <line x1={x1 toString} y1={y1 toString} x2={x2 toString} y2={y2 toString} stroke={stroke.color.toString} stroke-width={stroke.width.toString} />
+            case SVGText(content, x, y, color, font) => <text x={x toString} y={y toString} style={"fill:"+ color.toString +";font-size:"+ font.size +";font-weight:"+ font.weight}>{content}</text>
             case _ => Console.err.println(Console.RED +" Not implemented yet"+ Console.RESET)
           }
         }
