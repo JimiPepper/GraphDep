@@ -71,12 +71,25 @@ object Main extends App {
     if(nbAddedDependency == 0 && nbDeletedDependency == 0) // if no dependency changes detected
       commitDateCirc = circle(currentX, middleOrdinate, 5).fillColor(RGB(255, 255, 255))
     else {
-      nbAddDeptext = text("+"+ nbAddedDependency, currentX, middleOrdinate - nbAddedDependency * unitGraph - 5).fillColor(newDependencyColor)
-      nbDelDeptext = text("-"+ nbDeletedDependency, currentX, middleOrdinate + nbDeletedDependency * unitGraph + 12 + 5).fillColor(deleteDependencyColor)
-
       commitDateCirc = circle(currentX, middleOrdinate, 5)
-      addDepLine = line(currentX, middleOrdinate, currentX, middleOrdinate - nbAddedDependency * unitGraph).strokeColor(newDependencyColor)
-      delDepLine = line(currentX, middleOrdinate, currentX, middleOrdinate + nbDeletedDependency * unitGraph).strokeColor(deleteDependencyColor)
+
+      if (nbAddedDependency > 0) {
+        nbAddDeptext = text("+" + nbAddedDependency, currentX, middleOrdinate - nbAddedDependency * unitGraph - 5).fillColor(newDependencyColor)
+        addDepLine = line(currentX, middleOrdinate, currentX, middleOrdinate - nbAddedDependency * unitGraph).strokeColor(newDependencyColor)
+        svgElements = svgElements.:+(addDepLine)
+      }
+      else {
+        nbAddDeptext = text("0", currentX, middleOrdinate - nbAddedDependency * unitGraph - 5).fillColor(newDependencyColor)
+      }
+
+      if(nbDeletedDependency > 0) {
+        nbDelDeptext = text("-" + nbDeletedDependency, currentX, middleOrdinate + nbDeletedDependency * unitGraph + 12 + 5).fillColor(deleteDependencyColor)
+        delDepLine = line(currentX, middleOrdinate, currentX, middleOrdinate + nbDeletedDependency * unitGraph).strokeColor(deleteDependencyColor)
+        svgElements = svgElements.:+(delDepLine)
+      }
+      else {
+        nbDelDeptext = text("0", currentX, middleOrdinate + nbDeletedDependency * unitGraph + 12 + 5).fillColor(deleteDependencyColor)
+      }
 
       // TODO : Make an object for each svg export data
       svgElements = svgElements.:+(nbAddDeptext)
@@ -84,8 +97,7 @@ object Main extends App {
     }
 
     /* APPENDS SVG ELEMENTS */
-    svgElements = svgElements.:+(addDepLine)
-    svgElements = svgElements.:+(delDepLine)
+
     svgElements = svgElements.:+(commitDateCirc)
 
     nbDays = ((date.getTime() - lastCommitDate.getTime())/ DAY_IN_MILLIS ).toInt
