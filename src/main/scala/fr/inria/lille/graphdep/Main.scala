@@ -68,14 +68,18 @@ object Main extends App {
 
   parseInformation foreach { case (date : Date, nbAddedDependency : Int, nbDeletedDependencies : Int) =>
     /* CREATE SVG ELEMENTS */
-    addDepLine = line(currentX, middleOrdinate, currentX, middleOrdinate - nbAddedDependency * unitGraph).strokeColor(newDependencyColor)
-    delDepLine = line(currentX, middleOrdinate, currentX, middleOrdinate + nbDeletedDependencies * unitGraph).strokeColor(deleteDependencyColor)
-    commitDateCirc = circle(currentX, middleOrdinate, 10)
+    if(nbAddedDependency == 0 && nbDeletedDependencies == 0) // if no dependency changes detected
+      commitDateCirc = circle(currentX, middleOrdinate, 5).fillColor(RGB(255, 255, 255))
+    else {
+      commitDateCirc = circle(currentX, middleOrdinate, 5)
+      addDepLine = line(currentX, middleOrdinate, currentX, middleOrdinate - nbAddedDependency * unitGraph).strokeColor(newDependencyColor)
+      delDepLine = line(currentX, middleOrdinate, currentX, middleOrdinate + nbDeletedDependencies * unitGraph).strokeColor(deleteDependencyColor)
+    }
 
     /* APPENDS SVG ELEMENTS */
-    svgElements = svgElements.+:(addDepLine)
-    svgElements = svgElements.+:(delDepLine)
-    svgElements = svgElements.+:(commitDateCirc)
+    svgElements = svgElements.:+(addDepLine)
+    svgElements = svgElements.:+(delDepLine)
+    svgElements = svgElements.:+(commitDateCirc)
 
     nbDays = ((date.getTime() - lastCommitDate.getTime())/ DAY_IN_MILLIS ).toInt
     currentX += nbDays * spaceUnitDay
