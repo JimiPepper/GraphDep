@@ -57,7 +57,7 @@ object Main extends App {
   val maxAddedDependency = parseInformation.maxBy(_._2)
   val maxDeletedDependency = parseInformation.maxBy(_._3)
 
-  val widthSVG = (20 + parseInformation.size * spaceUnitDay)
+  val widthSVG = (20 + (parseInformation.size - 1) * spaceUnitDay) // -1 because we don't need to represent the last commit datee duration
   val heightSVG = (20 + maxAddedDependency._2 + unitGraph + + maxDeletedDependency._3 + unitGraph)
   var middleOrdinate = heightSVG / 2
 
@@ -67,6 +67,11 @@ object Main extends App {
   var addDepLine, delDepLine, commitDateCirc, nbAddDeptext, nbDelDeptext : SVGElement = null
 
   parseInformation foreach { case (date : Date, nbAddedDependency : Int, nbDeletedDependency : Int) =>
+    /* MOVE VIRTUAL DRAWING CURSOR */
+    nbDays = ((date.getTime() - lastCommitDate.getTime())/ DAY_IN_MILLIS ).toInt
+    currentX += nbDays * spaceUnitDay
+    lastCommitDate = date
+
     /* CREATE SVG ELEMENTS */
     if(nbAddedDependency == 0 && nbDeletedDependency == 0) // if no dependency changes detected
       commitDateCirc = circle(currentX, middleOrdinate, 5).fillColor(RGB(255, 255, 255))
@@ -99,10 +104,6 @@ object Main extends App {
     /* APPENDS SVG ELEMENTS */
 
     svgElements = svgElements.:+(commitDateCirc)
-
-    nbDays = ((date.getTime() - lastCommitDate.getTime())/ DAY_IN_MILLIS ).toInt
-    currentX += nbDays * spaceUnitDay
-    lastCommitDate = date
   }
 
   svgElements = chronoLine :: svgElements // add chrono line
