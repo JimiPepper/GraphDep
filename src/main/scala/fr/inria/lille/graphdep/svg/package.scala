@@ -105,7 +105,7 @@ package object svg extends SVGElementAppender {
     SVGText(content, x, y)
   }
 
-  def export(list : Seq[SVGElement]) : Unit = {
+  def export(width : Int, height : Int, list : Seq[SVGElement]) : Unit = {
     val doctype = DocType(
         "svg",
         PublicID(
@@ -116,7 +116,7 @@ package object svg extends SVGElementAppender {
 
     )
 
-    val xmlSVG = <svg width="1000000px" height="100px" version="1.1" xmlns="http://www.w3.org/2000/svg">{
+    val xmlSVG = <svg width={width +"px"} height={height +"px"} version="1.1" xmlns="http://www.w3.org/2000/svg">{
       for (shape <- list) yield {
           shape match {
             case SVGCircle(x, y, radius, fillColor, stroke) => <circle cx={x toString} cy={y toString} r={radius toString} stroke={stroke.color.toString} stroke-width={stroke.width.toString} fill={fillColor toString} />
