@@ -120,8 +120,8 @@ package object svg extends SVGElementAppender {
       for (shape <- list) yield {
           shape match {
             case SVGCircle(x, y, radius, fillColor, stroke) => <circle cx={x toString} cy={y toString} r={radius toString} stroke={stroke.color.toString} stroke-width={stroke.width.toString} fill={fillColor toString} />
-            case SVGLine(x1, y1, x2, y2, stroke) => <line x1={x1} y1={y1} x2={x2} y2={y2} stoke={stroke.color.toString} stroke-width={stroke.width.toString} />
-            case _ =>
+            case SVGLine(x1, y1, x2, y2, stroke) => <line x1={x1 toString} y1={y1 toString} x2={x2 toString} y2={y2 toString} stroke={stroke.color.toString} stroke-width={stroke.width.toString} />
+            case _ => Console.err.println(Console.RED +" Not implemented yet"+ Console.RESET)
           }
         }
       }</svg>
