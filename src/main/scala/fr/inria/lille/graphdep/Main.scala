@@ -11,21 +11,20 @@ import scala.xml.XML
  * Created by Jiraya on 13/12/2014.
  */
 object Main extends App {
-  /*
   /* VARIABLES TO GENERATE SVG FILE */
   val newDependencyColor =  RGB(0, 0, 255)
   val deleteDependencyColor = RGB(255, 0, 0)
   val spaceUnitDay = 25 // pixels
-  val unitGraph = 10 // pixels
+  val unitGraph = 5 // pixels
   var startX = 10 // pixels
   var maxY = 0 // pixel
   var minY = 0 // pixel
+  var nbDays = 0
   var currentX = 0
-  val svgElements = List[SVGElement]()
+  var svgElements = List[SVGElement]()
   val DAY_IN_MILLIS = 1000 * 60 * 60 * 24
-  */
 
-  var currentCommitDate : Date = null
+  var currentCommitDate, commitDate, lastCommitDate : Date = null // contains the commit date of the current visited commit node while parsing
   var parseInformation = List[(Date, Int, Int)]() // tuple <=> (commitDate, nbNewDependency, nbDeletedDependency)
 
   /* PARSING INITIALIZATION */
@@ -34,7 +33,6 @@ object Main extends App {
   currentCommitDate = getDate(((commits head) \\ "date") text) // get first commit date
   parseInformation = (currentCommitDate, 0, 0) :: parseInformation
   var nbNewAddedDependency, nbNewDeletedDependency : Int = 0
-  var commitDate : Date = null // contains the commit date of the current visited commit node while parsing
 
   /* PARSE XML RESULT FILE TO COLLECT INFORMATION DAY BY DAY */
   commits foreach { commit =>
@@ -54,14 +52,39 @@ object Main extends App {
       addCommitInformation(currentCommitDate, nbNewAddedDependency, nbNewDeletedDependency)
     }
   }
-  
-  /*
-  startX += nbDays * (spaceUnitDay + 0)
-  lastDateCommit = currentCommitDate
-  circle(startX, 10, 5)
- */
 
-  //export(SVGDoc)
+  /* GENERATE SVG FILE */
+  val maxAddedDependency = parseInformation.maxBy(_._2)
+  val maxDeletedDependency = parseInformation.maxBy(_._3)
+
+  val widthSVG = (20 + parseInformation.size * spaceUnitDay)
+  val heightSVG = (20 + maxAddedDependency._2 + unitGraph + + maxDeletedDependency._3 + unitGraph)
+  var middleOrdinate = heightSVG / 2
+
+  val chronoLine = line(10, middleOrdinate, widthSVG - 10, middleOrdinate)
+  currentX = startX
+  lastCommitDate = parseInformation.head._1
+  var addDepLine, delDepLine, commitDateCirc : SVGElement = null
+
+  parseInformation foreach { case (date : Date, nbAddedDependency : Int, nbDeletedDependencies : Int) =>
+    /* CREATE SVG ELEMENTS */
+    addDepLine = line(currentX, middleOrdinate, currentX, middleOrdinate - nbAddedDependency * unitGraph).strokeColor(newDependencyColor)
+    delDepLine = line(currentX, middleOrdinate, currentX, middleOrdinate + nbDeletedDependencies * unitGraph).strokeColor(deleteDependencyColor)
+    commitDateCirc = circle(currentX, middleOrdinate, 10)
+
+    /* APPENDS SVG ELEMENTS */
+    svgElements = svgElements.+:(addDepLine)
+    svgElements = svgElements.+:(delDepLine)
+    svgElements = svgElements.+:(commitDateCirc)
+
+    nbDays = ((date.getTime() - lastCommitDate.getTime())/ DAY_IN_MILLIS ).toInt
+    currentX += nbDays * spaceUnitDay
+    lastCommitDate = date
+  }
+
+  svgElements = chronoLine :: svgElements // add chrono line
+
+  export(widthSVG, heightSVG, svgElements)
 
   /**
    * Returns an Date object from a string representation
