@@ -8,4 +8,7 @@ scalacOptions ++= Seq("-unchecked", "-deprecation")
 
 mainClass in Compile := Some("fr.inria.lille.graphdep.Main")
 
-libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.0.2"
+libraryDependencies ++= (
+  "org.scala-lang.modules" %% "scala-xml" % "1.0.2",
+  "joda-time" % "joda-time" % "2.6"
+)
