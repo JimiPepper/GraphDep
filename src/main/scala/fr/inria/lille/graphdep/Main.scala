@@ -15,8 +15,8 @@ import scala.xml.XML
  */
 
 object Main extends App {
-  createGraphDateNumberCommit(args(0))
-  createGraphNumberCommitNumberDependencyAddDep(args(0))
+  //createGraphDateNumberCommit(args(0))
+  //createGraphNumberCommitNumberDependencyAddDep(args(0))
   createGraphNumberCommitNumberDependencyDelDep(args(0))
 
 
@@ -113,8 +113,6 @@ object Main extends App {
     }
 
     val sorted = SortedMap.empty[Int, Int] ++ map
-
-    println(sorted)
 
     sorted foreach { case(nbDependency : Int, amount : Int) =>
       graph.add(ValueCommitDependency(nbDependency, amount))

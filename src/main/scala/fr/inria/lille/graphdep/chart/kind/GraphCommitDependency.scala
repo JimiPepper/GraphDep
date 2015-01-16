@@ -34,8 +34,6 @@ class GraphCommitDependency(graphName : String, xCoordinateName : String, yCoord
 
   override def listUnitX: List[Int] = {
     val unit = pow(10, log10(getMaxX).toInt).toInt
-    println("unit : "+ unit)
-    println("maxX : "+ getMaxX)
     List.range(0, getMaxX, unit) :+ getMaxX
   }
 
@@ -56,7 +54,7 @@ class GraphCommitDependency(graphName : String, xCoordinateName : String, yCoord
   }
 
   override def listUnitY: List[Int] = {
-    var start = 1
+    var start = 10
     val maxY = getMaxY
     var list : List[Int] = Nil
 

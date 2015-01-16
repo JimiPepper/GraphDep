@@ -1,7 +1,7 @@
 package fr.inria.lille.graphdep
 
 import fr.inria.lille.graphdep.chart.kind.{GraphCommitDependency, GraphTimeAmount}
-import fr.inria.lille.graphdep.chart.value.ValueCommitDependency
+import fr.inria.lille.graphdep.chart.value.{ValueDateAmount, ValueCommitDependency}
 import fr.inria.lille.graphdep.svg._
 import org.joda.time.{LocalDate, DateTime, Days}
 
@@ -32,11 +32,13 @@ package object util {
     val YUnits = graph.listUnitY
     val XUnits = graph.listUnitX
 
-    val splitYCoordinates = YUnits.splitAt(YUnits.indexOf(1.0))
+    println(YUnits)
+
+    val splitYCoordinates = YUnits.splitAt(YUnits.indexOf(0.0))
     val positiveYUnit = splitYCoordinates._2.tail.reverse.tail.reverse
     val negativeUnit = splitYCoordinates._1.tail.reverse
-    val maxY = YUnits.reverse.head.toInt.toString
-    val minY = YUnits.reverse.reverse.head.toInt.toString
+    val maxY = YUnits.reverse.head.toString
+    val minY = YUnits.reverse.reverse.head.toString
 
     val startX = { // tell the longest y coordinate name
       if(minY.toString.length > maxY.toString.length) {
@@ -59,11 +61,11 @@ package object util {
     val graphDrawingSpace = DrawingSpace(yCoordinateGraph.x2, xCoordinateTopGraph.y2, dimension.width - SVGDOCUMENT_MARGIN, xCoordinateBottomGraph.y1 - 12)
 
     graph.unitX = (graphDrawingSpace.x2 - graphDrawingSpace.x1).toDouble / nbDays.toDouble
-    graph.unitY = (graphDrawingSpace.y2 - graphDrawingSpace.y1).toDouble / (graph.getMaxY + graph.getMinY * -1)
+    graph.unitY = (graphDrawingSpace.y2 - graphDrawingSpace.y1).toDouble / (log10(graph.getMaxY + 1) + log10((graph.getMinY + 1) * -1))
 
-    val middleOrdinate = (graph.getMaxY * graph.unitY).toInt + graphDrawingSpace.y1
+    val middleOrdinate = (log10(graph.getMaxY) * graph.unitY).toInt + graphDrawingSpace.y1
 
-    val values : List[(DateTime, Double)] = graph.getValues
+    val values : List[ValueDateAmount] = graph.getValues
     val startDate : DateTime = graph.getMinX
 
     /* DRAW HEADER */
@@ -80,14 +82,14 @@ package object util {
     cursor.y = middleOrdinate
     positiveYUnit.foreach{ value =>
       cursor.y -= graph.unitY.toInt
-      svgDocument.append(text(value.toInt.toString, cursor.x, cursor.y))
+      svgDocument.append(text(value.toString, cursor.x, cursor.y))
     }
 
     // negative
     cursor.y = middleOrdinate
     negativeUnit.foreach { value =>
       cursor.y += graph.unitY.toInt
-      svgDocument.append(text(value.toInt.toString, cursor.x, cursor.y))
+      svgDocument.append(text(value.toString, cursor.x, cursor.y))
     }
 
     // max and min value
@@ -95,7 +97,7 @@ package object util {
     svgDocument.append(text(minY, SVGDOCUMENT_MARGIN, yCoordinateGraph.y2 - 12)) // min
 
     // y-origin
-    svgDocument.append(text("1", cursor.x, middleOrdinate))
+    svgDocument.append(text("0", cursor.x, middleOrdinate))
 
     /* DRAW Y-UNIT LINES */
     // positive
@@ -113,28 +115,30 @@ package object util {
     }
 
     /* DRAW X-COORDINATE UNIT */
-    XUnits.foreach{ date =>
+    XUnits.foreach { date =>
       nbDays = Days.daysBetween(startDate, date).getDays
       cursor.x = xCoordinateTopGraph.x1 + (nbDays * graph.unitX).toInt
       svgDocument.append(line(cursor.x, graphDrawingSpace.y1, cursor.x, graphDrawingSpace.y2).strokeColor(RGB(200, 200, 200)))
 
-      val dateString = date.getMonthOfYear +"/"+ date.getYear
+      val dateString = date.getDayOfMonth +"/"+ date.getMonthOfYear +"/"+ date.getYear
       svgDocument.append(text(dateString, cursor.x, xCoordinateTopGraph.y1))
       svgDocument.append(text(dateString, cursor.x, xCoordinateBottomGraph.y1))
     }
 
     /* DRAW VALUES */
     values.foreach { value =>
-      val commitDate : DateTime = value._1
+      val commitDate : DateTime = value.x
       nbDays = Days.daysBetween(startDate, commitDate).getDays
 
       cursor.x = graphDrawingSpace.x1 + (nbDays.toDouble * graph.unitX).toInt
-      cursor.y = middleOrdinate + (value._2 * graph.unitY * -1).toInt
 
-      if(value._2 > 0) {
+      if(value.isPositiveY) {
+        cursor.y = middleOrdinate + (log10(value.y + 1) * graph.unitY * -1).toInt
         svgDocument.append(line(cursor.x, middleOrdinate, cursor.x, cursor.y).strokeColor(positiveValueColor))
+
       }
       else {
+        cursor.y = middleOrdinate + (log10(value.y * -1 + 1) * graph.unitY).toInt
         svgDocument.append(line(cursor.x, middleOrdinate, cursor.x, cursor.y).strokeColor(negativeValueColor))
       }
     }
@@ -147,8 +151,6 @@ package object util {
     /* COLORS USED TO DRAW THIS GRAPH */
     val positiveValueColor =  HexaRGB("78BF75")
     val unitValueColor = HexaRGB("CCCCCC")
-
-    println(graph.listUnitX)
 
     val svgDocument = document(dimension.width, dimension.height)
 
@@ -177,11 +179,9 @@ package object util {
     val graphDrawingSpace = DrawingSpace(yCoordinateGraph.x2, headerGraph.y2, dimension.width - SVGDOCUMENT_MARGIN, xCoordinateGraph.y1 - 12)
 
     graph.unitX = (graphDrawingSpace.x2 - graphDrawingSpace.x1).toDouble / graph.getMaxX.toDouble
-    graph.unitY = (graphDrawingSpace.y2 - graphDrawingSpace.y1).toDouble / log10(maxY)
+    graph.unitY = (graphDrawingSpace.y2 - graphDrawingSpace.y1).toDouble / log10(maxY + 1)
 
-    println("unitX : "+ graph.unitX)
-
-    val middleOrdinate = (log10(graph.getMaxY) * graph.unitY).toInt + graphDrawingSpace.y1
+    val middleOrdinate = (log10(graph.getMaxY + 1) * graph.unitY).toInt + graphDrawingSpace.y1
 
     val values : List[ValueCommitDependency] = graph.getValues
 
@@ -195,17 +195,17 @@ package object util {
     /* DRAW Y-COORDINATE UNIT */
     cursor.x = yCoordinateGraph.x1
     graph.listUnitY.foreach { unit =>
-      cursor.y = middleOrdinate - (log10(unit) * graph.unitY).toInt
+      cursor.y = middleOrdinate - (log10(unit + 1) * graph.unitY).toInt
       svgDocument.append(text(unit.toString, cursor.x, cursor.y))
     }
 
     // y-origin
-    svgDocument.append(text("1", cursor.x, middleOrdinate))
+    svgDocument.append(text("0", cursor.x, middleOrdinate))
 
     /* DRAW Y-UNIT LINES */
     cursor.y = middleOrdinate
     graph.listUnitY.foreach{ unit =>
-      cursor.y = middleOrdinate - (log10(unit) * graph.unitY).toInt
+      cursor.y = middleOrdinate - (log10(unit + 1) * graph.unitY).toInt
       svgDocument.append(line(graphDrawingSpace.x1, cursor.y, graphDrawingSpace.x2, cursor.y).strokeColor(unitValueColor))
     }
 
@@ -217,7 +217,7 @@ package object util {
 
     /* DRAW VALUES */
     values.foreach { value =>
-      val y = log10(value.y)
+      val y = log10(value.y + 1)
       cursor.x = graphDrawingSpace.x1 + (value.x * graph.unitX).toInt
       cursor.y = middleOrdinate + (y * graph.unitY * -1).toInt
 
