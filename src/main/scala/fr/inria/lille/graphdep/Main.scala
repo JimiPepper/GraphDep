@@ -17,7 +17,7 @@ import scala.xml.XML
 
 case class Conf(arguments : Seq[String]) extends ScallopConf(arguments) {
   val path = opt[String]("path", short = 'p', descr = "Absolute path to the xml result file", required = true)
-  val dates = opt[String]("dates", noshort = true, descr = "Start and en date formatted as following dd/MM/yyyy")
+  val dates = opt[String]("dates", default = Some(""), noshort = true, descr = "Start and en date formatted as following dd/MM/yyyy")
   val add_dep_graph = opt[Boolean]("addcommit", short = 'a', default = Some(false))
   val del_dep_graph = opt[Boolean]("delcommit", short = 'd', default = Some(false))
 
@@ -29,7 +29,6 @@ object Main extends App {
 
   if(parser.add_dep_graph.apply) {
     createGraphNumberCommitNumberDependencyAddDep(parser.path.apply)
-    println(parser.add_dep_graph)
   }
   else if(parser.del_dep_graph.apply) {
     createGraphNumberCommitNumberDependencyDelDep(parser.path.apply)
